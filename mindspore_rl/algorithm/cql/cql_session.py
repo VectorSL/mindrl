@@ -1,4 +1,4 @@
-# Copyright 2022 Huawei Technologies Co., Ltd
+# Copyright 2022-2023 Huawei Technologies Co., Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,15 @@ CQL session.
 """
 import time
 import numpy as np
+
+from mindspore_rl.distribution.distribution_policies.async_multi_actor_single_learner_dp import (
+    AsyncMultiActorSingleLearnerDP,
+)
+
+from mindspore_rl.algorithm.cql import config
 from mindspore_rl.core import Session
 from mindspore_rl.utils.utils import update_config
-from mindspore_rl.utils.callback import CheckpointCallback, EvaluateCallback, Callback
-from mindspore_rl.algorithm.cql import config
+from mindspore_rl.utils.callback import Callback, CheckpointCallback, EvaluateCallback
 
 
 class MyLossCallback(Callback):
@@ -41,35 +46,39 @@ class MyLossCallback(Callback):
         for loss in losses:
             losses_out.append(round(float(np.mean(loss.asnumpy())), 3))
         if (params.cur_episode % self.interval) == 0:
-            print("Episode {}: critic_loss is {}, actor_loss is {}, per_step_time {:5.3f} ms".format(\
+            print("Episode {}: critic_loss is {}, actor_loss is {}, per_step_time {:5.3f} ms".format(
                 params.cur_episode, losses_out[0], losses_out[1], epoch_ms), flush=True)
 
 
 class CQLSession(Session):
-    '''CQL session'''
-    def __init__(self, env_yaml=None, algo_yaml=None):
+    """CQL session"""
+
+    def __init__(self, env_yaml=None, algo_yaml=None, is_distribte=False):
         update_config(config, env_yaml, algo_yaml)
-        env_config = config.algorithm_config.get('collect_environment')
-        env = env_config.get('type')(env_config.get('params'))
-        config.policy_params['state_space_dim'] = env.observation_space.shape[0]
-        config.policy_params['action_space_dim'] = env.action_space.shape[0]
-        config.learner_params['state_space_dim'] = env.observation_space.shape[0]
-        config.learner_params['action_space_dim'] = env.action_space.shape[0]
+        env_config = config.algorithm_config.get("collect_environment")
+        env = env_config.get("type")(env_config.get("params"))
+        config.policy_params["state_space_dim"] = env.observation_space.shape[0]
+        config.policy_params["action_space_dim"] = env.action_space.shape[0]
+        config.learner_params["state_space_dim"] = env.observation_space.shape[0]
+        config.learner_params["action_space_dim"] = env.action_space.shape[0]
         # Replay buffer
-        config.algorithm_config['replay_buffer']['data_shape'] = [env.observation_space.shape,
+        config.algorithm_config["replay_buffer"]["data_shape"] = [env.observation_space.shape,
                                                                   env.action_space.shape, (1,),
                                                                   env.observation_space.shape, (1,)]
-        config.algorithm_config['replay_buffer']['data_type'] = [env.observation_space.ms_dtype,
+        config.algorithm_config["replay_buffer"]["data_type"] = [env.observation_space.ms_dtype,
                                                                  env.observation_space.ms_dtype,
                                                                  env.observation_space.ms_dtype,
                                                                  env.observation_space.ms_dtype,
                                                                  env.observation_space.ms_dtype]
 
-        ckpt_cb = CheckpointCallback(config.trainer_params.get('save_per_episode'),
-                                     config.trainer_params.get('ckpt_path'),
-                                     config.trainer_params.get('max_ckpt_num'))
-        loss_cb = MyLossCallback(config.trainer_params.get('loss_freq'))
-        eval_cb = EvaluateCallback(config.trainer_params.get('eval_per_episode'))
+        ckpt_cb = CheckpointCallback(config.trainer_params.get("save_per_episode"),
+                                     config.trainer_params.get("ckpt_path"),
+                                     config.trainer_params.get("max_ckpt_num"))
+        loss_cb = MyLossCallback(config.trainer_params.get("loss_freq"))
+        eval_cb = EvaluateCallback(config.trainer_params.get("eval_per_episode"))
         params = config.trainer_params
         cbs = [ckpt_cb, loss_cb, eval_cb]
-        super().__init__(config.algorithm_config, None, params=params, callbacks=cbs)
+        deploy_config = None
+        if is_distribte:
+            deploy_config = config.deploy_config
+        super().__init__(config.algorithm_config, deploy_config, params=params, callbacks=cbs)

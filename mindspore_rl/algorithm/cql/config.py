@@ -1,4 +1,4 @@
-# Copyright 2022 Huawei Technologies Co., Ltd
+# Copyright 2022-2023 Huawei Technologies Co., Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -103,5 +103,28 @@ algorithm_config = {
         "type": UniformReplayBuffer,
         "capacity": 2000000,
         "sample_size": 256,
+    },
+}
+
+deploy_config = {
+    "auto_distribution": True,
+    "distribution_policy": AsyncMultiActorSingleLearnerDP,
+    "worker_num": 2,
+    "network": "actor_net",
+    "algo_name": "cql",
+    "config": {
+        "DATA": [(256, 11), (256,), (256, 256), (256,), (256, 256), (256,), (3, 256), (3,), (3, 256), (3,)],
+        "TYPE": [
+            "mindspore.float32",
+            "mindspore.float32",
+            "mindspore.float32",
+            "mindspore.float32",
+            "mindspore.float32",
+            "mindspore.float32",
+            "mindspore.float32",
+            "mindspore.float32",
+            "mindspore.float32",
+            "mindspore.float32",
+        ],
     },
 }
