@@ -14,13 +14,8 @@
 # ============================================================================
 
 """
-Components for Automatic distributin.
+Multi actor environment single learner policy
 """
 
-from mindspore_rl.distribution.code_generation import fragment_generation
-from mindspore_rl.distribution.distribution_policies import DistributionPolicy
-from mindspore_rl.distribution.distribution_policies import MultiActorSingleLearnerDP
-from mindspore_rl.distribution.distribution_policies import AsyncMultiActorSingleLearnerDP
-
-__all__ = ["fragment_generation", "DistributionPolicy",
-           "MultiActorSingleLearnerDP", "AsyncMultiActorSingleLearnerDP"]
+from .multi_agent_dp import MultiAgentDP
+__all__ = ["MultiAgentDP"]

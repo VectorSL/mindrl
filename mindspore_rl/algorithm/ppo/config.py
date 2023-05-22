@@ -19,7 +19,7 @@ import mindspore
 
 from mindspore_rl.core.uniform_replay_buffer import UniformReplayBuffer
 from mindspore_rl.distribution.distribution_policies.multi_actor_single_learner_dp import (
-    MultiActorEnvSingleLearnerDP,
+    MultiActorSingleLearnerDP,
 )
 from mindspore_rl.environment import GymEnvironment
 from mindspore_rl.environment.pyfunc_wrapper import PyFuncWrapper
@@ -92,7 +92,7 @@ algorithm_config = {
 
 deploy_config = {
     "auto_distribution": True,
-    "distribution_policy": MultiActorEnvSingleLearnerDP,
+    "distribution_policy": MultiActorSingleLearnerDP,
     "worker_num": 2,
     "network": "actor_net",
     "algo_name": "ppo",

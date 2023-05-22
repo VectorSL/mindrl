@@ -17,9 +17,9 @@
 Pre-defined Distribution policies
 """
 
-from mindspore_rl.distribution.distribution_policies.multi_actor_single_learner_dp import MultiActorEnvSingleLearnerDP
+from mindspore_rl.distribution.distribution_policies.multi_actor_single_learner_dp import MultiActorSingleLearnerDP
 from mindspore_rl.distribution.distribution_policies.async_multi_actor_single_learner_dp \
-import AsyncMultiActorSingleLearnerDP
+    import AsyncMultiActorSingleLearnerDP
 from .distribution_policy import DistributionPolicy
 
-__all__ = ["DistributionPolicy", "MultiActorEnvSingleLearnerDP", "AsyncMultiActorSingleLearnerDP"]
+__all__ = ["DistributionPolicy", "MultiActorSingleLearnerDP", "AsyncMultiActorSingleLearnerDP"]
